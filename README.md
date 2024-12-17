@@ -1,2 +1,3 @@
-# multiple-shipping-addresses-for-woocommerce
+# Shipping Multiple Addresses for WooCommerce®
+
 Coming soon

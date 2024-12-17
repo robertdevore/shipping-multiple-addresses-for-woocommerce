@@ -1,0 +1,67 @@
+/* Base Styles */
+.sma-section {
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+.sma-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #0073aa;
+    color: #fff;
+    text-align: center;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.sma-button:hover {
+    background-color: #005177;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sma-section {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .sma-address-table th, .sma-address-table td {
+        display: block;
+        text-align: left;
+        width: 100%;
+    }
+    .sma-button {
+        width: 100%;
+        padding: 12px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .sma-section {
+        padding: 5px;
+        font-size: 12px;
+    }
+    .sma-address-table th, .sma-address-table td {
+        font-size: 12px;
+    }
+}
+
+/* Checkout Enhancements */
+.sma-field {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+.sma-field:focus {
+    border-color: #0073aa;
+    outline: none;
+}
+
+/** My Account - Manage Addresses */
+
+#sma-add-address p label {
+    display: block;
+}
