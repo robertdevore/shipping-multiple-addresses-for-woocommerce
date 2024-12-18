@@ -29,26 +29,37 @@ jQuery( document ).ready( function ( $ ) {
     });
 
     // Duplicate the cart on button click.
-    $('#sma-duplicate-cart').on('click', function(e) {
+    $( '#sma-duplicate-cart' ).on( 'click', function( e ) {
         e.preventDefault();
-        $(this).prop('disabled', true).text('Duplicating...');
 
-        var data = {
-            action: 'sma_duplicate_cart',
-            security: sma_ajax_object.security
-        };
+        // Show a loading spinner or disable the button
+        const $button = $( this );
+        $button.text( 'Duplicating...' ).prop( 'disabled', true );
 
-        $.post(sma_ajax_object.ajax_url, data, function(response) {
-            if (response.success) {
-                alert(response.data.message);
-                location.reload();
-            } else {
-                alert(response.data.message);
+        // AJAX request to duplicate the cart
+        $.ajax({
+            url: sma_ajax_object.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'sma_duplicate_cart',
+                security: sma_ajax_object.security
+            },
+            success: function( response ) {
+                if ( response.success ) {
+                    alert( response.data.message );
+                    location.reload(); // Reload cart page to reflect changes
+                } else {
+                    alert( response.data.message );
+                }
+            },
+            error: function() {
+                alert( 'Something went wrong. Please try again.' );
+            },
+            complete: function() {
+                $button.text( 'Duplicate Cart' ).prop( 'disabled', false );
             }
-        }).always(function() {
-            $('#sma-duplicate-cart').prop('disabled', false).text('Duplicate Cart');
         });
-    });
+    } );
 
     // Delivery Date picker.
     $('#sma_delivery_date').datepicker({

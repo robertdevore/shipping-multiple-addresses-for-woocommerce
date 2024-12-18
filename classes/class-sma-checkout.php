@@ -231,53 +231,44 @@ class SMA_Checkout {
         }
     
         $saved_addresses = get_user_meta( get_current_user_id(), 'sma_saved_addresses', true );
+        $cart_items      = WC()->cart->get_cart();
+        $orders          = [];
     
-        if ( ! is_array( $saved_addresses ) || empty( $saved_addresses ) ) {
-            error_log( 'No saved addresses found.' );
-            wc_add_notice( __( 'No saved addresses available.', 'ship-multiple-addresses' ), 'error' );
-            return;
-        }
+        error_log( 'Saved addresses: ' . print_r( $saved_addresses, true ) );
+        error_log( 'Cart items: ' . print_r( $cart_items, true ) );
     
-        // Rebuild saved addresses with keys
-        $saved_addresses_with_keys = [];
-        foreach ( $saved_addresses as $key => $address ) {
-            $unique_key = $key ?: uniqid();
-            $saved_addresses_with_keys[ $unique_key ] = $address;
-        }
+        // Group items by address
+        foreach ( $cart_items as $cart_key => $item ) {
+            $address_key = $assigned_addresses[ $cart_key ] ?? null;
     
-        $orders = [];
-        foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
-            $product = wc_get_product( $item['product_id'] );
-            if ( ! $product || ! isset( $assigned_addresses[ $cart_key ] ) ) {
-                error_log( "Invalid product or address key for cart item: $cart_key" );
+            if ( ! $address_key || ! isset( $saved_addresses[ $address_key ] ) ) {
+                error_log( "Invalid address key for cart item: $cart_key" );
                 continue;
             }
-        
-            $address_key = $assigned_addresses[ $cart_key ];
-        
+    
+            // Add to the appropriate group
             if ( ! isset( $orders[ $address_key ] ) ) {
                 $orders[ $address_key ] = [];
             }
-        
+    
             $orders[ $address_key ][] = $item;
         }
-
-        foreach ( $orders as $address_key => $items ) {
-            $address = $saved_addresses_with_keys[ $address_key ];
-            $sub_order = wc_create_order( [ 'customer_id' => $order->get_customer_id() ] );
     
-            if ( ! $sub_order ) {
-                error_log( "Failed to create sub-order for address key: $address_key" );
-                continue;
-            }
+        // Create sub-orders for each address group
+        foreach ( $orders as $address_key => $items ) {
+            $address = $saved_addresses[ $address_key ];
+            $sub_order = wc_create_order( [ 'customer_id' => $order->get_customer_id() ] );
     
             foreach ( $items as $item ) {
                 $product = wc_get_product( $item['product_id'] );
                 if ( $product ) {
                     $sub_order->add_product( $product, $item['quantity'] );
+                } else {
+                    error_log( "Product not found: {$item['product_id']}" );
                 }
             }
     
+            // Add shipping costs
             $shipping_address = [
                 'first_name' => $address['name'],
                 'address_1'  => $address['address_1'],
@@ -286,17 +277,44 @@ class SMA_Checkout {
                 'postcode'   => $address['postcode'],
             ];
             $sub_order->set_address( $shipping_address, 'shipping' );
-    
             $this->calculate_shipping( $sub_order, $shipping_address );
     
+            // Distribute surcharges
+            foreach ( $order->get_items( 'fee' ) as $fee_item ) {
+                $fee = new WC_Order_Item_Fee();
+                $fee->set_name( $fee_item->get_name() );
+                $fee->set_amount( $fee_item->get_amount() / count( $items ) ); // Proportionally distribute
+                $fee->set_tax_class( $fee_item->get_tax_class() );
+                $fee->set_tax_status( $fee_item->get_tax_status() );
+                $fee->set_total( $fee_item->get_total() / count( $items ) );
+                $fee->set_total_tax( $fee_item->get_total_tax() / count( $items ) );
+                $sub_order->add_item( $fee );
+            }
+    
+            // Recalculate taxes
+            $sub_order->calculate_taxes();
+    
+            // Save the sub-order
             $sub_order->calculate_totals();
             $sub_order->save();
     
-            $order->add_order_note( sprintf( __( 'Sub-order #%s created for address: %s', 'ship-multiple-addresses' ), $sub_order->get_id(), $address['address_1'] ) );
+            // Add note to the main order
+            $order->add_order_note( sprintf(
+                __( 'Sub-order #%s created for address: %s', 'ship-multiple-addresses' ),
+                $sub_order->get_id(),
+                $address['address_1']
+            ) );
+    
+            // Add note to sub-order
+            $sub_order->add_order_note( __( 'This order was split from a parent order.', 'ship-multiple-addresses' ) );
+    
+            // Trigger custom email for the sub-order
+            do_action( 'woocommerce_order_status_processing', $sub_order->get_id(), $sub_order );
         }
     
+        // Add a note to the parent order
         $order->add_order_note( __( 'Order split into multiple shipments.', 'ship-multiple-addresses' ) );
-    }
+    }    
 
     /**
      * Calculate shipping costs for a sub-order based on the address.

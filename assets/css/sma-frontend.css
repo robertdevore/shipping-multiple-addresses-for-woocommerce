@@ -65,3 +65,9 @@
 #sma-add-address p label {
     display: block;
 }
+
+/** Duplicate Cart Button */
+.sma-address-table {
+    display: inline-block;
+    margin-top: 10px;
+}

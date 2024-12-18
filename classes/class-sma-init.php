@@ -4,6 +4,7 @@ class SMA_Init {
     public function __construct() {
         // Include classes.
         require_once SMA_PLUGIN_DIR . 'classes/class-sma-address.php';
+        require_once SMA_PLUGIN_DIR . 'classes/class-sma-cart.php';
         require_once SMA_PLUGIN_DIR . 'classes/class-sma-checkout.php';
         require_once SMA_PLUGIN_DIR . 'classes/class-sma-settings.php';
 

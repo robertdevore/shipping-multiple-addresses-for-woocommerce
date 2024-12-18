@@ -3,8 +3,8 @@ class SMA_Cart {
 
     public function __construct() {
         // Hook to add the duplicate cart button
-        add_action( 'woocommerce_cart_actions', array( $this, 'add_duplicate_cart_button' ) );
-        
+        add_action( 'woocommerce_cart_actions', [ $this, 'add_duplicate_cart_button' ] );
+
         // AJAX handler for duplicating the cart
         add_action( 'wp_ajax_sma_duplicate_cart', array( $this, 'duplicate_cart' ) );
         add_action( 'wp_ajax_nopriv_sma_duplicate_cart', array( $this, 'duplicate_cart' ) );
@@ -15,7 +15,7 @@ class SMA_Cart {
      */
     public function add_duplicate_cart_button() {
         echo '<button type="button" id="sma-duplicate-cart" class="button">'
-            . __( 'Duplicate Cart', 'ship-multiple-addresses' )
+            . esc_html__( 'Duplicate Cart', 'ship-multiple-addresses' )
             . '</button>';
     }
 
