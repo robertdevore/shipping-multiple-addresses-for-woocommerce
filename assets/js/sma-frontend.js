@@ -24,8 +24,8 @@ jQuery( document ).ready( function ( $ ) {
     });
 
     // Toggle multiple address fields in checkout.
-    $( '#toggle-multi-address' ).on( 'click', function () {
-        $( '#multi-address-section' ).slideToggle();
+    $('#toggle-multi-address').on('click', function () {
+        $('#multi-address-section').slideToggle();
     });
 
     // Duplicate the cart on button click.
@@ -51,16 +51,53 @@ jQuery( document ).ready( function ( $ ) {
     });
 
     // Delivery Date picker.
-    if ($('.sma-delivery-date').length) {
-        $('.sma-delivery-date').datepicker({
-            dateFormat: 'yy-mm-dd',
-            minDate: 1, // Prevent past dates
-            beforeShowDay: function(date) {
-                // Exclude weekends or specific holidays if needed.
-                var day = date.getDay();
-                return [(day != 0 && day != 6), ''];
-            }
-        });
-    }
+    $('#sma_delivery_date').datepicker({
+        dateFormat: 'yy-mm-dd',
+        minDate: 1,
+    });
 
+    // Checkout show address UI on click.
+    $('#sma-show-address-ui').on('click', function () {
+        $('#sma-multiple-addresses-section').slideToggle();
+    });
+
+    // Collect assigned addresses and submit them during checkout.
+    $('form.checkout').on('submit', function (e) {
+        var assignedAddresses = {};
+        var hasError = false;
+    
+        // Collect assigned addresses from dropdowns
+        $('#sma-multiple-addresses-section select').each(function () {
+            var productKey = $(this).data('cart-key');
+            var addressKey = $(this).val();
+    
+            console.log('Product Key:', productKey, 'Address Key:', addressKey);
+    
+            // Validate that an address is selected
+            if (!addressKey || addressKey === "") {
+                alert('Please select a valid address for all products.');
+                hasError = true;
+                return false; // Exit each loop
+            }
+    
+            assignedAddresses[productKey] = addressKey;
+        });
+    
+        if (hasError) {
+            e.preventDefault(); // Stop form submission
+            return false;
+        }
+    
+        console.log('Assigned addresses:', assignedAddresses);
+    
+        // Ensure the hidden input is removed first to prevent duplicates
+        $('input[name="sma_addresses"]').remove();
+    
+        // Add assigned addresses to the form as a hidden input
+        $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'sma_addresses')
+            .val(JSON.stringify(assignedAddresses))
+            .appendTo(this);
+    });
 });

@@ -8,7 +8,9 @@ class SMA_Checkout {
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_delivery_fields' ) );
         add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'display_delivery_fields_admin' ) );
         add_action( 'woocommerce_before_checkout_form', array( $this, 'show_custom_checkout_notification' ) );
+        add_action( 'woocommerce_before_checkout_form', array( $this, 'show_multiple_addresses_ui' ), 10 );
         add_action( 'woocommerce_after_checkout_form', array( $this, 'update_checkout_button_text' ) );
+        add_action( 'woocommerce_checkout_process', array( $this, 'validate_addresses_assignment' ) );
         add_filter( 'woocommerce_checkout_process', array( $this, 'filter_excluded_products' ) );
     }
 
@@ -20,30 +22,28 @@ class SMA_Checkout {
      * 
      * @return mixed
      */
-    public function filter_excluded_products( $saved_addresses, $cart_items ) {
-        $excluded_products = get_option( 'sma_excluded_products', array() );
+    public function filter_excluded_products() {
+        $excluded_products  = get_option( 'sma_excluded_products', array() );
         $excluded_categories = get_option( 'sma_excluded_categories', array() );
     
-        foreach ( $cart_items as $cart_key => $item ) {
+        foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
             $product_id = $item['product_id'];
-            $product = wc_get_product( $product_id );
+            $product    = wc_get_product( $product_id );
     
-            // Check if the product ID is in the exclusion list
-            if ( in_array( $product_id, $excluded_products ) ) {
+            // Check for excluded product
+            if ( in_array( $product_id, $excluded_products, true ) ) {
                 wc_add_notice( sprintf( __( 'Product %s is not eligible for multiple shipping addresses.', 'ship-multiple-addresses' ), $product->get_name() ), 'error' );
                 unset( WC()->cart->cart_contents[ $cart_key ] );
                 continue;
             }
     
-            // Check if the product category is in the exclusion list
+            // Check for excluded category
             $product_categories = $product->get_category_ids();
             if ( array_intersect( $product_categories, $excluded_categories ) ) {
-                wc_add_notice( sprintf( __( 'Product %s in excluded category cannot be shipped to multiple addresses.', 'ship-multiple-addresses' ), $product->get_name() ), 'error' );
+                wc_add_notice( sprintf( __( 'Product %s is in an excluded category and cannot be shipped to multiple addresses.', 'ship-multiple-addresses' ), $product->get_name() ), 'error' );
                 unset( WC()->cart->cart_contents[ $cart_key ] );
             }
         }
-    
-        return WC()->cart->cart_contents;
     }
 
     /**
@@ -91,6 +91,7 @@ class SMA_Checkout {
         }
 
         if ( ! empty( $_POST['sma_delivery_date'] ) ) {
+            error_log( 'Saving delivery date: ' . sanitize_text_field( $_POST['sma_delivery_date'] ) );
             update_post_meta( $order_id, '_sma_delivery_date', sanitize_text_field( $_POST['sma_delivery_date'] ) );
         }
     }
@@ -114,25 +115,40 @@ class SMA_Checkout {
     public function show_custom_checkout_notification() {
         $custom_text = get_option( 'sma_checkout_notification', __( 'Ship items to multiple addresses.', 'ship-multiple-addresses' ) );
     
-        echo '<div class="woocommerce-info sma-custom-notification">' . esc_html( $custom_text ) . '</div>';
-    }
-    
+        echo '<div class="woocommerce-info sma-custom-notification">';
+        echo esc_html( $custom_text );
+        echo ' <button type="button" id="sma-show-address-ui" class="button">' . esc_html__( 'Assign Addresses', 'ship-multiple-addresses' ) . '</button>';
+        echo '</div>';
+    }    
+
     /**
      * Display UI for assigning products to multiple addresses.
      */
     public function show_multiple_addresses_ui() {
         if ( ! is_user_logged_in() ) {
+            echo '<p>' . esc_html__( 'You must be logged in to assign products to multiple addresses.', 'ship-multiple-addresses' ) . '</p>';
             return;
         }
-
+    
         $saved_addresses = get_user_meta( get_current_user_id(), 'sma_saved_addresses', true );
-        $cart_items      = WC()->cart->get_cart();
-
-        if ( empty( $saved_addresses ) ) {
-            echo '<p>' . esc_html__( 'Please add shipping addresses first.', 'ship-multiple-addresses' ) . '</p>';
+    
+        // Ensure saved addresses have unique keys
+        $saved_addresses_with_keys = [];
+        foreach ( $saved_addresses as $key => $address ) {
+            $unique_key = $key ?: uniqid();
+            $saved_addresses_with_keys[ $unique_key ] = $address;
+        }
+    
+        // Save updated addresses
+        update_user_meta( get_current_user_id(), 'sma_saved_addresses', $saved_addresses_with_keys );
+    
+        $cart_items = WC()->cart->get_cart();
+    
+        if ( empty( $saved_addresses_with_keys ) ) {
+            echo '<p>' . esc_html__( 'Please add shipping addresses first in your account.', 'ship-multiple-addresses' ) . '</p>';
             return;
         }
-
+    
         ?>
         <div id="sma-multiple-addresses-section">
             <h3><?php esc_html_e( 'Assign Products to Addresses', 'ship-multiple-addresses' ); ?></h3>
@@ -150,8 +166,9 @@ class SMA_Checkout {
                             <td><?php echo esc_html( $cart_item['data']->get_name() ); ?></td>
                             <td><?php echo esc_html( $cart_item['quantity'] ); ?></td>
                             <td>
-                                <select name="sma_addresses[<?php echo esc_attr( $cart_key ); ?>]">
-                                    <?php foreach ( $saved_addresses as $key => $address ) : ?>
+                                <select name="sma_addresses[<?php echo esc_attr( $cart_key ); ?>]" data-cart-key="<?php echo esc_attr( $cart_key ); ?>">
+                                    <option value=""><?php esc_html_e( 'Select Address', 'ship-multiple-addresses' ); ?></option>
+                                    <?php foreach ( $saved_addresses_with_keys as $key => $address ) : ?>
                                         <option value="<?php echo esc_attr( $key ); ?>">
                                             <?php echo esc_html( $address['name'] . ' - ' . $address['city'] ); ?>
                                         </option>
@@ -170,13 +187,32 @@ class SMA_Checkout {
      * Validate that addresses have been assigned to all products.
      */
     public function validate_addresses_assignment() {
-        $assigned_addresses = isset( $_POST['sma_addresses'] ) ? $_POST['sma_addresses'] : array();
-
-        foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
-            if ( empty( $assigned_addresses[ $cart_key ] ) ) {
+        // Log raw POST data for debugging
+        error_log( 'Raw POST data: ' . print_r( $_POST, true ) );
+    
+        // Check if the sma_addresses field is present
+        if ( isset( $_POST['sma_addresses'] ) ) {
+            // Decode the JSON input
+            $assigned_addresses = json_decode( stripslashes( html_entity_decode( $_POST['sma_addresses'] ) ), true );
+    
+            // Log the decoded data
+            error_log( 'Decoded assigned addresses: ' . print_r( $assigned_addresses, true ) );
+    
+            // Validate that the decoded data is an array and not empty
+            if ( ! is_array( $assigned_addresses ) || empty( $assigned_addresses ) ) {
                 wc_add_notice( __( 'Please assign an address to all products.', 'ship-multiple-addresses' ), 'error' );
-                break;
+                return;
             }
+    
+            // Ensure every cart item has an assigned address
+            foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
+                if ( empty( $assigned_addresses[ $cart_key ] ) ) {
+                    wc_add_notice( __( 'Please assign an address to all products.', 'ship-multiple-addresses' ), 'error' );
+                    return;
+                }
+            }
+        } else {
+            wc_add_notice( __( 'Please assign an address to all products.', 'ship-multiple-addresses' ), 'error' );
         }
     }
 
@@ -184,70 +220,81 @@ class SMA_Checkout {
      * Split the order into multiple child orders based on assigned addresses.
      */
     public function split_order_by_addresses( $order, $data ) {
-        $assigned_addresses = isset( $_POST['sma_addresses'] ) ? $_POST['sma_addresses'] : array();
-
-        if ( empty( $assigned_addresses ) ) {
+        $assigned_addresses = isset( $_POST['sma_addresses'] )
+            ? json_decode( stripslashes( html_entity_decode( $_POST['sma_addresses'] ) ), true )
+            : [];
+    
+        if ( json_last_error() !== JSON_ERROR_NONE ) {
+            error_log( 'JSON decoding error: ' . json_last_error_msg() );
+            wc_add_notice( __( 'Invalid address data received.', 'ship-multiple-addresses' ), 'error' );
             return;
         }
-
+    
         $saved_addresses = get_user_meta( get_current_user_id(), 'sma_saved_addresses', true );
-        $cart_items      = WC()->cart->get_cart();
-        $orders          = array();
-
-        // Group items by address
-        foreach ( $cart_items as $cart_key => $item ) {
-            $address_key = $assigned_addresses[ $cart_key ];
-
-            if ( ! isset( $orders[ $address_key ] ) ) {
-                $orders[ $address_key ] = array();
+    
+        if ( ! is_array( $saved_addresses ) || empty( $saved_addresses ) ) {
+            error_log( 'No saved addresses found.' );
+            wc_add_notice( __( 'No saved addresses available.', 'ship-multiple-addresses' ), 'error' );
+            return;
+        }
+    
+        // Rebuild saved addresses with keys
+        $saved_addresses_with_keys = [];
+        foreach ( $saved_addresses as $key => $address ) {
+            $unique_key = $key ?: uniqid();
+            $saved_addresses_with_keys[ $unique_key ] = $address;
+        }
+    
+        $orders = [];
+        foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
+            $product = wc_get_product( $item['product_id'] );
+            if ( ! $product || ! isset( $assigned_addresses[ $cart_key ] ) ) {
+                error_log( "Invalid product or address key for cart item: $cart_key" );
+                continue;
             }
-
+        
+            $address_key = $assigned_addresses[ $cart_key ];
+        
+            if ( ! isset( $orders[ $address_key ] ) ) {
+                $orders[ $address_key ] = [];
+            }
+        
             $orders[ $address_key ][] = $item;
         }
 
-        // Create sub-orders for each address
         foreach ( $orders as $address_key => $items ) {
-            $address = $saved_addresses[ $address_key ];
-
-            // Create a new sub-order
-            $sub_order = wc_create_order( array( 'customer_id' => $order->get_customer_id() ) );
-
+            $address = $saved_addresses_with_keys[ $address_key ];
+            $sub_order = wc_create_order( [ 'customer_id' => $order->get_customer_id() ] );
+    
+            if ( ! $sub_order ) {
+                error_log( "Failed to create sub-order for address key: $address_key" );
+                continue;
+            }
+    
             foreach ( $items as $item ) {
                 $product = wc_get_product( $item['product_id'] );
-                $sub_order->add_product( $product, $item['quantity'] );
+                if ( $product ) {
+                    $sub_order->add_product( $product, $item['quantity'] );
+                }
             }
-
-            // Set shipping address
-            $shipping_address = array(
+    
+            $shipping_address = [
                 'first_name' => $address['name'],
                 'address_1'  => $address['address_1'],
                 'city'       => $address['city'],
                 'state'      => $address['state'],
                 'postcode'   => $address['postcode'],
-            );
+            ];
             $sub_order->set_address( $shipping_address, 'shipping' );
-
-            // Calculate shipping costs
+    
             $this->calculate_shipping( $sub_order, $shipping_address );
-
+    
             $sub_order->calculate_totals();
             $sub_order->save();
-
-            // Add note to main order
-            $order->add_order_note( sprintf(
-                __( 'Sub-order #%s created for address: %s', 'ship-multiple-addresses' ),
-                $sub_order->get_id(),
-                $address['address_1']
-            ) );
-
-            // Add note to sub-order for reference
-            $sub_order->add_order_note( __( 'This order was split from a parent order.', 'ship-multiple-addresses' ) );
-
-            // Trigger the custom email for the sub-order
-            do_action( 'woocommerce_order_status_processing', $sub_order->get_id(), $sub_order );
+    
+            $order->add_order_note( sprintf( __( 'Sub-order #%s created for address: %s', 'ship-multiple-addresses' ), $sub_order->get_id(), $address['address_1'] ) );
         }
-
-        // Mark the parent order
+    
         $order->add_order_note( __( 'Order split into multiple shipments.', 'ship-multiple-addresses' ) );
     }
 
@@ -258,28 +305,48 @@ class SMA_Checkout {
      * @param array    $shipping_address
      */
     private function calculate_shipping( $order, $shipping_address ) {
-        $packages = [];
+        // Prepare the package contents
+        $contents = [];
+        foreach ( $order->get_items() as $item_id => $item ) {
+            $product = $item->get_product();
+            if ( $product && $product->needs_shipping() ) { // Ensure product is valid and needs shipping
+                $contents[] = [
+                    'product_id' => $item->get_product_id(),
+                    'quantity'   => $item->get_quantity(),
+                    'data'       => $product,
+                ];
+            }
+        }
 
-        // Prepare shipping package
-        $packages[] = array(
-            'contents'    => $order->get_items(),
-            'destination' => array(
-                'country'   => 'US', // Adjust for multi-country support.
-                'state'     => $shipping_address['state'],
-                'postcode'  => $shipping_address['postcode'],
-                'city'      => $shipping_address['city'],
-                'address'   => $shipping_address['address_1'],
-            ),
-        );
+        if ( empty( $contents ) ) {
+            error_log( 'No valid shippable items found for sub-order.' );
+            return;
+        }
 
-        // Calculate shipping costs
-        WC()->shipping()->calculate_shipping( $packages );
+        // Build the package
+        $packages = [
+            [
+                'contents'    => $contents,
+                'destination' => [
+                    'country'   => 'US',
+                    'state'     => $shipping_address['state'],
+                    'postcode'  => $shipping_address['postcode'],
+                    'city'      => $shipping_address['city'],
+                    'address'   => $shipping_address['address_1'],
+                ],
+            ],
+        ];
 
-        // Add the first available shipping method
-        $shipping_methods = WC()->shipping()->get_packages()[0]['rates'];
-        if ( ! empty( $shipping_methods ) ) {
-            $method = current( $shipping_methods ); // Get the first method
+        $shipping = WC()->shipping();
+        $shipping->calculate_shipping( $packages );
+
+        // Apply the first available shipping method
+        $available_methods = $packages[0]['rates'] ?? [];
+        if ( ! empty( $available_methods ) ) {
+            $method = reset( $available_methods );
             $order->add_shipping( $method );
+        } else {
+            error_log( 'No available shipping methods for package.' );
         }
     }
 
