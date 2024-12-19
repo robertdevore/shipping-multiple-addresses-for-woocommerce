@@ -1,4 +1,3 @@
-/* Base Styles */
 .sma-section {
     padding: 20px;
     background: #f9f9f9;
@@ -19,7 +18,6 @@
     background-color: #005177;
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
     .sma-section {
         padding: 10px;
@@ -46,7 +44,6 @@
     }
 }
 
-/* Checkout Enhancements */
 .sma-field {
     width: 100%;
     margin-bottom: 10px;
@@ -60,14 +57,73 @@
     outline: none;
 }
 
-/** My Account - Manage Addresses */
-
 #sma-add-address p label {
     display: block;
 }
 
-/** Duplicate Cart Button */
 .sma-address-table {
     display: inline-block;
     margin-top: 10px;
+}
+
+.sma-address-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.sma-address-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.sma-address-item:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.sma-address-item p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #444444;
+    line-height: 1.5;
+}
+
+.sma-delete-address {
+    background: #f00;
+    border: none;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sma-delete-address:hover {
+    background: #cc0000;
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .sma-address-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .sma-delete-address {
+        align-self: flex-end;
+    }
 }

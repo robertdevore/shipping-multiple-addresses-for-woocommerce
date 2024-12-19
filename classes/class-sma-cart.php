@@ -12,6 +12,9 @@ class SMA_Cart {
 
     /**
      * Add a "Duplicate Cart" button on the Cart Page.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function add_duplicate_cart_button() {
         echo '<button type="button" id="sma-duplicate-cart" class="button">'
@@ -21,6 +24,9 @@ class SMA_Cart {
 
     /**
      * Handle AJAX request to duplicate the cart.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function duplicate_cart() {
         // Verify the nonce for security

@@ -24,6 +24,9 @@ class SMA_Init {
 
     /**
      * Enqueue frontend scripts and styles.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function enqueue_scripts() {
         // Add the stylesheets.
@@ -41,6 +44,7 @@ class SMA_Init {
     /**
      * Enqueue backend scripts and styles
      * 
+     * @since  1.0.0
      * @return void
      */
     public function enqueue_admin_scripts() {
@@ -49,6 +53,9 @@ class SMA_Init {
 
     /**
      * Register a new endpoint for managing addresses in My Account.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function register_manage_addresses_endpoint() {
         add_rewrite_endpoint( 'sma-manage-addresses', EP_ROOT | EP_PAGES );
@@ -56,6 +63,9 @@ class SMA_Init {
 
     /**
      * Add a custom tab for multiple addresses in My Account navigation.
+     * 
+     * @since  1.0.0
+     * @return mixed
      */
     public function add_address_tab( $items ) {
         $items['sma-manage-addresses'] = __( 'Manage Addresses', 'ship-multiple-addresses' );
@@ -64,6 +74,9 @@ class SMA_Init {
 
     /**
      * Display the Manage Addresses content.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function display_manage_addresses_content() {
         wc_get_template( 'shipping-addresses.php', array(), '', SMA_PLUGIN_DIR . 'templates/' );

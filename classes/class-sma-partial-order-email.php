@@ -36,6 +36,9 @@ class SMA_Partial_Order_Email extends WC_Email {
      *
      * @param int      $order_id
      * @param WC_Order $order
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function trigger( $order_id, $order = false ) {
         if ( ! $order || ! $this->is_enabled() ) {
@@ -54,6 +57,9 @@ class SMA_Partial_Order_Email extends WC_Email {
 
     /**
      * Get content HTML.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     public function get_content_html() {
         return wc_get_template_html( $this->template_html, array(
@@ -65,6 +71,9 @@ class SMA_Partial_Order_Email extends WC_Email {
 
     /**
      * Get content plain.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     public function get_content_plain() {
         return wc_get_template_html( $this->template_plain, array(

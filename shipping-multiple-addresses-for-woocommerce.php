@@ -9,12 +9,9 @@
  * Author URI:  https://robertdevore.com/
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain: shipping-multiple-addresses-for-woocommerce
+ * Text Domain: ship-multiple-addresses
  * Domain Path: /languages
  * Update URI:  https://github.com/deviodigital/shipping-multiple-addresses-for-woocommerce/
- * 
- * WC requires at least: 5.0
- * WC tested up to:      8.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -30,7 +27,7 @@ $myUpdateChecker = PucFactory::buildUpdateChecker(
 
 //Set the branch that contains the stable release.
 $myUpdateChecker->setBranch( 'main' );
- 
+
 // Define plugin constants.
 define( 'SMA_PLUGIN_VERSION', '1.0' );
 define( 'SMA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -41,6 +38,9 @@ require_once SMA_PLUGIN_DIR . 'classes/class-sma-init.php';
 
 /**
  * Initialize the plugin.
+ * 
+ * @since  1.0.0
+ * @return void
  */
 function sma_init() {
     new SMA_Init();
@@ -49,6 +49,9 @@ add_action( 'plugins_loaded', 'sma_init' );
 
 /**
  * Register custom email class for split orders.
+ * 
+ * @since  1.0.0
+ * @return mixed
  */
 function sma_register_custom_email( $email_classes ) {
     if ( class_exists( 'WC_Email' ) ) {
@@ -61,6 +64,9 @@ add_filter( 'woocommerce_email_classes', 'sma_register_custom_email' );
 
 /**
  * Register custom email class for partial orders.
+ * 
+ * @since  1.0.0
+ * @return mixed
  */
 function sma_register_partial_order_email( $email_classes ) {
     if ( class_exists( 'WC_Email' ) ) {
@@ -73,14 +79,17 @@ add_filter( 'woocommerce_email_classes', 'sma_register_partial_order_email' );
 
 /**
  * Summary of sma_display_sub_orders
+ * 
  * @param mixed $order
+ * 
+ * @since  1.0.0
  * @return void
  */
 function sma_display_sub_orders( $order ) {
     $sub_orders = wc_get_orders( array( 'parent' => $order->get_id(), 'limit' => -1 ) );
 
     if ( ! empty( $sub_orders ) ) {
-        echo '<h4>' . __( 'Sub-Orders', 'ship-multiple-addresses' ) . '</h4>';
+        echo '<h4>' . esc_html__( 'Sub-Orders', 'ship-multiple-addresses' ) . '</h4>';
         echo '<ul style="list-style: disc; padding-left: 20px;">';
         foreach ( $sub_orders as $sub_order ) {
             echo '<li>
@@ -97,6 +106,8 @@ add_action( 'woocommerce_admin_order_data_after_order_details', 'sma_display_sub
  * Summary of sma_add_custom_order_columns
  * 
  * @param mixed $columns
+ * 
+ * @since  1.0.0
  * @return array
  */
 function sma_add_custom_order_columns( $columns ) {
@@ -104,7 +115,7 @@ function sma_add_custom_order_columns( $columns ) {
     foreach ( $columns as $key => $column ) {
         $new_columns[ $key ] = $column;
         if ( 'order_date' === $key ) {
-            $new_columns['parent_order'] = __( 'Parent Order', 'ship-multiple-addresses' );
+            $new_columns['parent_order'] = esc_html__( 'Parent Order', 'ship-multiple-addresses' );
         }
     }
     return $new_columns;
@@ -113,8 +124,11 @@ add_filter( 'manage_edit-shop_order_columns', 'sma_add_custom_order_columns' );
 
 /**
  * Summary of sma_display_parent_order_column
+ * 
  * @param mixed $column
  * @param mixed $post_id
+ * 
+ * @since  1.0.0
  * @return void
  */
 function sma_display_parent_order_column( $column, $post_id ) {
@@ -124,7 +138,7 @@ function sma_display_parent_order_column( $column, $post_id ) {
             echo '<a href="' . esc_url( admin_url( 'post.php?post=' . $order->get_parent_id() . '&action=edit' ) ) . '">'
                  . sprintf( __( '#%d', 'ship-multiple-addresses' ), $order->get_parent_id() ) . '</a>';
         } else {
-            echo __( 'N/A', 'ship-multiple-addresses' );
+            esc_html_e( 'N/A', 'ship-multiple-addresses' );
         }
     }
 }

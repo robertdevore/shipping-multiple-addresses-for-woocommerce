@@ -25,7 +25,7 @@ class SMA_Split_Order_Email extends WC_Email {
         );
 
         // Triggers for sending this email
-        add_action( 'woocommerce_order_status_processing', array( $this, 'trigger' ), 10, 2 );
+        add_action( 'woocommerce_checkout_create_order', array( $this, 'trigger' ), 10, 2 );
 
         // Load the parent class constructor
         parent::__construct();
@@ -38,27 +38,33 @@ class SMA_Split_Order_Email extends WC_Email {
      *
      * @param int      $order_id
      * @param WC_Order $order
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function trigger( $order_id, $order = false ) {
+        // Check if emails are enabled
         if ( ! SMA_Settings::is_email_enabled() ) {
-            return; // Exit if emails are disabled in settings.
-        }
-
-        if ( ! $order ) {
             return;
         }
 
-        $this->object = $order;
+        // Only trigger for sub-orders
+        if ( $order->get_parent_id() ) {
+            $this->object = $order;
 
-        $this->placeholders['{order_id}']   = $order->get_id();
-        $this->placeholders['{order_link}'] = esc_url( $order->get_view_order_url() );
+            $this->placeholders['{order_id}']   = $order->get_id();
+            $this->placeholders['{order_link}'] = esc_url( $order->get_view_order_url() );
 
-        // Send the email
-        $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
+            // Send the email
+            $this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
+        }
     }
 
     /**
      * Get the HTML content for the email.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     public function get_content_html() {
         return wc_get_template_html(
@@ -75,6 +81,9 @@ class SMA_Split_Order_Email extends WC_Email {
 
     /**
      * Get the plain text content for the email.
+     * 
+     * @since  1.0.0
+     * @return string
      */
     public function get_content_plain() {
         return wc_get_template_html(

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class SMA_Settings
+ * 
  * Adds admin settings for enabling/disabling split order notifications.
  */
 class SMA_Settings {
@@ -16,6 +17,9 @@ class SMA_Settings {
 
     /**
      * Add a new section under WooCommerce > Settings > Shipping.
+     * 
+     * @since  1.0.0
+     * @return mixed
      */
     public function add_settings_section( $sections ) {
         $sections['sma_split_orders'] = __( 'Split Orders Settings', 'ship-multiple-addresses' );
@@ -27,6 +31,8 @@ class SMA_Settings {
      * 
      * @param mixed $settings
      * @param mixed $current_section
+     * 
+     * @since  1.0.0
      * @return mixed
      */
     public function add_settings_fields( $settings, $current_section ) {
@@ -119,6 +125,9 @@ class SMA_Settings {
     
     /**
      * Retrieve all products for the Exclude Products dropdown.
+     * 
+     * @since  1.0.0
+     * @return array
      */
     private function get_all_products() {
         $products = wc_get_products( array( 'limit' => -1, 'status' => 'publish' ) );
@@ -133,6 +142,9 @@ class SMA_Settings {
     
     /**
      * Retrieve all categories for the Exclude Categories dropdown.
+     * 
+     * @since  1.0.0
+     * @return array
      */
     private function get_all_categories() {
         $categories = get_terms( 'product_cat', array( 'hide_empty' => false ) );
@@ -147,6 +159,9 @@ class SMA_Settings {
 
     /**
      * Check if split order emails are enabled.
+     * 
+     * @since  1.0.0
+     * @return bool
      */
     public static function is_email_enabled() {
         return 'yes' === get_option( 'sma_enable_split_order_email', 'yes' );

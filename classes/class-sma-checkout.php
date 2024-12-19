@@ -20,10 +20,11 @@ class SMA_Checkout {
      * @param mixed $saved_addresses
      * @param mixed $cart_items
      * 
-     * @return mixed
+     * @since  1.0.0
+     * @return void
      */
     public function filter_excluded_products() {
-        $excluded_products  = get_option( 'sma_excluded_products', array() );
+        $excluded_products   = get_option( 'sma_excluded_products', array() );
         $excluded_categories = get_option( 'sma_excluded_categories', array() );
     
         foreach ( WC()->cart->get_cart() as $cart_key => $item ) {
@@ -48,11 +49,14 @@ class SMA_Checkout {
 
     /**
      * Add Delivery Notes and Date Picker fields at checkout.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function add_delivery_notes_and_date_picker( $checkout ) {
         echo '<div id="sma-delivery-fields"><h3>' . __( 'Delivery Options', 'ship-multiple-addresses' ) . '</h3>';
 
-        // Delivery Notes Field
+        // Delivery Notes Field.
         woocommerce_form_field( 'sma_delivery_notes', array(
             'type'        => 'textarea',
             'class'       => array( 'sma-delivery-notes form-row-wide' ),
@@ -61,7 +65,7 @@ class SMA_Checkout {
             'required'    => false,
         ), $checkout->get_value( 'sma_delivery_notes' ) );
 
-        // Delivery Date Picker
+        // Delivery Date Picker.
         woocommerce_form_field( 'sma_delivery_date', array(
             'type'        => 'text',
             'class'       => array( 'sma-delivery-date sma-field sma-date-picker form-row-wide' ),
@@ -75,6 +79,9 @@ class SMA_Checkout {
 
     /**
      * Validate delivery fields during checkout.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function validate_delivery_fields() {
         if ( empty( $_POST['sma_delivery_date'] ) ) {
@@ -84,20 +91,30 @@ class SMA_Checkout {
 
     /**
      * Save delivery fields as order meta.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function save_delivery_fields( $order_id ) {
+        $order = wc_get_order( $order_id );
+
         if ( ! empty( $_POST['sma_delivery_notes'] ) ) {
-            update_post_meta( $order_id, '_sma_delivery_notes', sanitize_textarea_field( $_POST['sma_delivery_notes'] ) );
+            //update_post_meta( $order_id, '_sma_delivery_notes', sanitize_textarea_field( $_POST['sma_delivery_notes'] ) );
+            $order->update_meta_data( '_sma_delivery_notes', sanitize_textarea_field( $_POST['sma_delivery_notes'] ) );
         }
 
         if ( ! empty( $_POST['sma_delivery_date'] ) ) {
             error_log( 'Saving delivery date: ' . sanitize_text_field( $_POST['sma_delivery_date'] ) );
-            update_post_meta( $order_id, '_sma_delivery_date', sanitize_text_field( $_POST['sma_delivery_date'] ) );
+            $order->update_meta_data( '_sma_delivery_date', sanitize_textarea_field( $_POST['sma_delivery_date'] ) );
+            //update_post_meta( $order_id, '_sma_delivery_date', sanitize_text_field( $_POST['sma_delivery_date'] ) );
         }
     }
 
     /**
      * Display delivery fields in the WooCommerce admin order details.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function display_delivery_fields_admin( $order ) {
         $delivery_notes = get_post_meta( $order->get_id(), '_sma_delivery_notes', true );
@@ -112,6 +129,13 @@ class SMA_Checkout {
         }
     }
     
+
+    /**
+     * Summary of show_custom_checkout_notification
+     * 
+     * @since  1.0.0
+     * @return void
+     */
     public function show_custom_checkout_notification() {
         $custom_text = get_option( 'sma_checkout_notification', __( 'Ship items to multiple addresses.', 'ship-multiple-addresses' ) );
     
@@ -123,6 +147,9 @@ class SMA_Checkout {
 
     /**
      * Display UI for assigning products to multiple addresses.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function show_multiple_addresses_ui() {
         if ( ! is_user_logged_in() ) {
@@ -132,14 +159,14 @@ class SMA_Checkout {
     
         $saved_addresses = get_user_meta( get_current_user_id(), 'sma_saved_addresses', true );
     
-        // Ensure saved addresses have unique keys
+        // Ensure saved addresses have unique keys.
         $saved_addresses_with_keys = [];
         foreach ( $saved_addresses as $key => $address ) {
             $unique_key = $key ?: uniqid();
             $saved_addresses_with_keys[ $unique_key ] = $address;
         }
     
-        // Save updated addresses
+        // Save updated addresses.
         update_user_meta( get_current_user_id(), 'sma_saved_addresses', $saved_addresses_with_keys );
     
         $cart_items = WC()->cart->get_cart();
@@ -185,6 +212,9 @@ class SMA_Checkout {
 
     /**
      * Validate that addresses have been assigned to all products.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function validate_addresses_assignment() {
         // Log raw POST data for debugging
@@ -218,6 +248,9 @@ class SMA_Checkout {
 
     /**
      * Split the order into multiple child orders based on assigned addresses.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function split_order_by_addresses( $order, $data ) {
         $assigned_addresses = isset( $_POST['sma_addresses'] )
@@ -321,53 +354,95 @@ class SMA_Checkout {
      *
      * @param WC_Order $order
      * @param array    $shipping_address
+     * 
+     * @since  1.0.0
+     * @return void
      */
     private function calculate_shipping( $order, $shipping_address ) {
         // Prepare the package contents
         $contents = [];
         foreach ( $order->get_items() as $item_id => $item ) {
             $product = $item->get_product();
-            if ( $product && $product->needs_shipping() ) { // Ensure product is valid and needs shipping
+            if ( $product && $product->needs_shipping() ) {
                 $contents[] = [
+                    'key'        => $item_id,
                     'product_id' => $item->get_product_id(),
                     'quantity'   => $item->get_quantity(),
                     'data'       => $product,
+                    'line_total' => $item->get_total(),
                 ];
             }
         }
-
+    
         if ( empty( $contents ) ) {
             error_log( 'No valid shippable items found for sub-order.' );
             return;
         }
-
-        // Build the package
+    
+        // Calculate the total contents cost
+        $contents_cost = array_sum( array_column( $contents, 'line_total' ) );
+    
+        // Build the shipping package
         $packages = [
             [
-                'contents'    => $contents,
+                'contents'     => $contents,
+                'contents_cost' => $contents_cost,
                 'destination' => [
-                    'country'   => 'US',
+                    'country'   => $shipping_address['country'] ?? 'US',
                     'state'     => $shipping_address['state'],
                     'postcode'  => $shipping_address['postcode'],
                     'city'      => $shipping_address['city'],
-                    'address'   => $shipping_address['address_1'],
+                    'address_1' => $shipping_address['address_1'],
                 ],
             ],
         ];
-
-        $shipping = WC()->shipping();
-        $shipping->calculate_shipping( $packages );
-
-        // Apply the first available shipping method
-        $available_methods = $packages[0]['rates'] ?? [];
-        if ( ! empty( $available_methods ) ) {
-            $method = reset( $available_methods );
-            $order->add_shipping( $method );
+    
+        // Check if main order has a shipping method
+        $main_shipping_items = $order->get_items( 'shipping' );
+        if ( ! empty( $main_shipping_items ) ) {
+            $main_shipping = reset( $main_shipping_items );
+            $method_id     = $main_shipping->get_method_id();
+            $method_title  = $main_shipping->get_method_title();
+            $shipping_cost = $main_shipping->get_total();
+    
+            // Apply the same shipping method to the sub-order
+            $shipping_item = new WC_Order_Item_Shipping();
+            $shipping_item->set_method_id( $method_id );
+            $shipping_item->set_method_title( $method_title );
+            $shipping_item->set_total( $shipping_cost );
+    
+            $order->add_item( $shipping_item );
         } else {
-            error_log( 'No available shipping methods for package.' );
+            // Trigger WooCommerce shipping calculation
+            $shipping = WC()->shipping();
+            $shipping->calculate_shipping( $packages );
+    
+            // Apply the first available shipping method
+            $available_methods = $packages[0]['rates'] ?? [];
+            if ( ! empty( $available_methods ) ) {
+                $method = reset( $available_methods );
+    
+                $shipping_item = new WC_Order_Item_Shipping();
+                $shipping_item->set_method_title( $method->get_label() );
+                $shipping_item->set_method_id( $method->get_id() );
+                $shipping_item->set_total( $method->get_cost() );
+    
+                $order->add_item( $shipping_item );
+            } else {
+                error_log( 'No shipping methods available for the address: ' . print_r( $shipping_address, true ) );
+            }
         }
+    
+        // Recalculate totals
+        $order->calculate_totals();
     }
-
+    
+    /**
+     * Summary of update_checkout_button_text
+     * 
+     * @since  1.0.0
+     * @return void
+     */
     public function update_checkout_button_text() {
         $button_text = get_option( 'sma_button_text', __( 'Set Multiple Addresses', 'ship-multiple-addresses' ) );
     

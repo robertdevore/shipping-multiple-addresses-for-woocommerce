@@ -9,6 +9,9 @@ class SMA_Address {
 
     /**
      * Save a new shipping address.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function save_address() {
         check_ajax_referer( 'sma_nonce', 'security' );
@@ -55,6 +58,9 @@ class SMA_Address {
 
     /**
      * Delete a saved address by its key.
+     * 
+     * @since  1.0.0
+     * @return void
      */
     public function delete_address() {
         check_ajax_referer( 'sma_nonce', 'security' );

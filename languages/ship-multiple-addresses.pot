@@ -1,0 +1,419 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Shipping Multiple Addresses for WooCommerce®\n"
+"POT-Creation-Date: 2024-12-18 22:24-0500\n"
+"PO-Revision-Date: 2024-12-18 22:24-0500\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: shipping-multiple-addresses-for-woocommerce.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+"X-Poedit-SearchPathExcluded-1: includes/plugin-update-checker/vendor\n"
+
+#: classes/class-sma-address.php:21
+msgid "You must be logged in to save an address."
+msgstr ""
+
+#: classes/class-sma-address.php:33
+msgid "All fields are required."
+msgstr ""
+
+#: classes/class-sma-address.php:56
+msgid "Address saved successfully!"
+msgstr ""
+
+#: classes/class-sma-address.php:70
+msgid "You must be logged in to delete an address."
+msgstr ""
+
+#: classes/class-sma-address.php:82
+msgid "Address deleted successfully."
+msgstr ""
+
+#: classes/class-sma-address.php:85
+msgid "Invalid address key."
+msgstr ""
+
+#: classes/class-sma-admin-orders.php:35
+msgid "Parent Order:"
+msgstr ""
+
+#: classes/class-sma-admin-orders.php:36
+msgid "View Parent Order"
+msgstr ""
+
+#: classes/class-sma-cart.php:21
+msgid "Duplicate Cart"
+msgstr ""
+
+#: classes/class-sma-cart.php:40
+msgid "Cart is empty."
+msgstr ""
+
+#: classes/class-sma-cart.php:50
+msgid "Cart duplicated successfully!"
+msgstr ""
+
+#: classes/class-sma-checkout.php:36
+#, php-format
+msgid "Product %s is not eligible for multiple shipping addresses."
+msgstr ""
+
+#: classes/class-sma-checkout.php:44
+#, php-format
+msgid ""
+"Product %s is in an excluded category and cannot be shipped to multiple "
+"addresses."
+msgstr ""
+
+#: classes/class-sma-checkout.php:57
+msgid "Delivery Options"
+msgstr ""
+
+#: classes/class-sma-checkout.php:63
+msgid "Delivery Notes"
+msgstr ""
+
+#: classes/class-sma-checkout.php:64
+msgid "Enter any delivery instructions here."
+msgstr ""
+
+#: classes/class-sma-checkout.php:72
+msgid "Preferred Delivery Date"
+msgstr ""
+
+#: classes/class-sma-checkout.php:73
+msgid "Select a delivery date"
+msgstr ""
+
+#: classes/class-sma-checkout.php:88
+msgid "Please select a preferred delivery date."
+msgstr ""
+
+#: classes/class-sma-checkout.php:124
+msgid "Delivery Notes:"
+msgstr ""
+
+#: classes/class-sma-checkout.php:128
+msgid "Preferred Delivery Date:"
+msgstr ""
+
+#: classes/class-sma-checkout.php:140 classes/class-sma-settings.php:105
+msgid "Ship items to multiple addresses."
+msgstr ""
+
+#: classes/class-sma-checkout.php:144
+msgid "Assign Addresses"
+msgstr ""
+
+#: classes/class-sma-checkout.php:156
+msgid "You must be logged in to assign products to multiple addresses."
+msgstr ""
+
+#: classes/class-sma-checkout.php:175
+msgid "Please add shipping addresses first in your account."
+msgstr ""
+
+#: classes/class-sma-checkout.php:181
+msgid "Assign Products to Addresses"
+msgstr ""
+
+#: classes/class-sma-checkout.php:185
+msgid "Product"
+msgstr ""
+
+#: classes/class-sma-checkout.php:186
+msgid "Quantity"
+msgstr ""
+
+#: classes/class-sma-checkout.php:187
+msgid "Shipping Address"
+msgstr ""
+
+#: classes/class-sma-checkout.php:197
+msgid "Select Address"
+msgstr ""
+
+#: classes/class-sma-checkout.php:233 classes/class-sma-checkout.php:240
+#: classes/class-sma-checkout.php:245
+msgid "Please assign an address to all products."
+msgstr ""
+
+#: classes/class-sma-checkout.php:262
+msgid "Invalid address data received."
+msgstr ""
+
+#: classes/class-sma-checkout.php:336
+#, php-format
+msgid "Sub-order #%s created for address: %s"
+msgstr ""
+
+#: classes/class-sma-checkout.php:342
+msgid "This order was split from a parent order."
+msgstr ""
+
+#: classes/class-sma-checkout.php:349
+msgid "Order split into multiple shipments."
+msgstr ""
+
+#: classes/class-sma-checkout.php:447 classes/class-sma-settings.php:112
+msgid "Set Multiple Addresses"
+msgstr ""
+
+#: classes/class-sma-init.php:71
+msgid "Manage Addresses"
+msgstr ""
+
+#: classes/class-sma-partial-order-email.php:17
+msgid "Partial Order Completed"
+msgstr ""
+
+#: classes/class-sma-partial-order-email.php:18
+msgid "Sent when a sub-order is marked as completed."
+msgstr ""
+
+#: classes/class-sma-settings.php:25 classes/class-sma-settings.php:42
+msgid "Split Orders Settings"
+msgstr ""
+
+#: classes/class-sma-settings.php:47
+msgid "Enable Split Order Notifications"
+msgstr ""
+
+#: classes/class-sma-settings.php:48
+msgid "Send email notifications for split sub-orders."
+msgstr ""
+
+#: classes/class-sma-settings.php:60
+msgid "Enable Partial Order Completed Email"
+msgstr ""
+
+#: classes/class-sma-settings.php:64
+msgid "Send an email when a sub-order is completed."
+msgstr ""
+
+#: classes/class-sma-settings.php:69
+msgid "Exclude Products and Categories"
+msgstr ""
+
+#: classes/class-sma-settings.php:74
+msgid "Exclude Products"
+msgstr ""
+
+#: classes/class-sma-settings.php:79
+msgid "Select products to exclude from multi-shipping."
+msgstr ""
+
+#: classes/class-sma-settings.php:82
+msgid "Exclude Categories"
+msgstr ""
+
+#: classes/class-sma-settings.php:87
+msgid "Select categories to exclude from multi-shipping."
+msgstr ""
+
+#: classes/class-sma-settings.php:97
+msgid "Custom Checkout Notification & Button Text"
+msgstr ""
+
+#: classes/class-sma-settings.php:102
+msgid "Checkout Notification"
+msgstr ""
+
+#: classes/class-sma-settings.php:106
+msgid "Customize the notification text displayed at checkout."
+msgstr ""
+
+#: classes/class-sma-settings.php:109
+msgid "Button Text"
+msgstr ""
+
+#: classes/class-sma-settings.php:113
+msgid "Customize the button text for enabling multiple shipping."
+msgstr ""
+
+#: classes/class-sma-split-order-email.php:17
+msgid "Split Order Notification"
+msgstr ""
+
+#: classes/class-sma-split-order-email.php:18
+msgid "Notification for split sub-orders created during checkout."
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:56
+msgid "View details"
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:79
+#, php-format
+msgid "More information about %s"
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:130
+msgid "Check for updates"
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:217
+#, php-format
+msgctxt "the plugin title"
+msgid "The %s plugin is up to date."
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:219
+#, php-format
+msgctxt "the plugin title"
+msgid "A new version of the %s plugin is available."
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:221
+#, php-format
+msgctxt "the plugin title"
+msgid "Could not determine if updates are available for %s."
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Plugin/Ui.php:227
+#, php-format
+msgid "Unknown update checker status \"%s\""
+msgstr ""
+
+#: includes/plugin-update-checker/Puc/v5p4/Vcs/PluginUpdateChecker.php:113
+msgid "There is no changelog available."
+msgstr ""
+
+#: shipping-multiple-addresses-for-woocommerce.php:92
+msgid "Sub-Orders"
+msgstr ""
+
+#: shipping-multiple-addresses-for-woocommerce.php:97
+#, php-format
+msgid "Sub-Order #%d - %s"
+msgstr ""
+
+#: shipping-multiple-addresses-for-woocommerce.php:118
+msgid "Parent Order"
+msgstr ""
+
+#: shipping-multiple-addresses-for-woocommerce.php:139
+#, php-format
+msgid "#%d"
+msgstr ""
+
+#: shipping-multiple-addresses-for-woocommerce.php:141
+msgid "N/A"
+msgstr ""
+
+#: templates/emails/plain/sma-partial-order-completed.php:9
+#: templates/emails/sma-partial-order-completed.php:8
+msgid "A portion of your order has been completed and shipped."
+msgstr ""
+
+#: templates/emails/plain/split-order-notification.php:13
+#: templates/emails/split-order-notification.php:15
+msgid ""
+"Your order has been split into multiple shipments. Below are the details for "
+"this split order."
+msgstr ""
+
+#: templates/emails/plain/split-order-notification.php:15
+#: templates/emails/split-order-notification.php:19
+msgid "Order ID:"
+msgstr ""
+
+#: templates/emails/plain/split-order-notification.php:16
+msgid "View your order here:"
+msgstr ""
+
+#: templates/emails/plain/split-order-notification.php:18
+#: templates/emails/split-order-notification.php:25
+msgid "Thank you for shopping with us."
+msgstr ""
+
+#: templates/emails/sma-partial-order-completed.php:9
+#, php-format
+msgid "Order ID: %s"
+msgstr ""
+
+#: templates/emails/sma-partial-order-completed.php:10
+msgid "View Order"
+msgstr ""
+
+#: templates/emails/split-order-notification.php:17
+msgid "Order Details"
+msgstr ""
+
+#: templates/emails/split-order-notification.php:20
+msgid "View your order here."
+msgstr ""
+
+#: templates/shipping-addresses.php:21
+msgid "Manage Shipping Addresses"
+msgstr ""
+
+#: templates/shipping-addresses.php:35
+msgid "Delete"
+msgstr ""
+
+#: templates/shipping-addresses.php:41
+msgid "No saved addresses found."
+msgstr ""
+
+#: templates/shipping-addresses.php:45
+msgid "Add New Shipping Address"
+msgstr ""
+
+#: templates/shipping-addresses.php:48
+msgid "Full Name"
+msgstr ""
+
+#: templates/shipping-addresses.php:53
+msgid "Address"
+msgstr ""
+
+#: templates/shipping-addresses.php:58
+msgid "City"
+msgstr ""
+
+#: templates/shipping-addresses.php:63
+msgid "State"
+msgstr ""
+
+#: templates/shipping-addresses.php:68
+msgid "Postcode"
+msgstr ""
+
+#: templates/shipping-addresses.php:72
+msgid "Save Address"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Shipping Multiple Addresses for WooCommerce®"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid ""
+"https://github.com/robertdevore/shipping-multiple-addresses-for-woocommerce/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Coming Soon"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Robert DeVore"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://robertdevore.com/"
+msgstr ""

@@ -9,6 +9,9 @@ public function __construct() {
 
 /**
  * Add a CSS class to highlight sub-orders in the order list.
+ * 
+ * @since  1.0.0
+ * @return void
  */
 public function highlight_sub_orders( $classes, $class, $post_id ) {
     $order = wc_get_order( $post_id );
@@ -22,6 +25,9 @@ public function highlight_sub_orders( $classes, $class, $post_id ) {
 
 /**
  * Display a link to the parent order on the sub-order details page.
+ * 
+ * @since  1.0.0
+ * @return void
  */
 public function display_parent_order_link( $order ) {
     if ( $order->get_parent_id() ) {
